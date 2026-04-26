@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edward - Photography Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FDFDFD;
+            --text-color: #111111;
+            --sidebar-width: 360px;
+        }
+
+        body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Jost', sans-serif; /* Updated to Jost */
+        letter-spacing: -1.5px;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+        }
+
+        .mono {
+        font-family: 'Spline Sans Mono', monospace; /* Updated to Spline Sans Mono */
+        letter-spacing: -0.5px; 
+        }
+
+        /* Sidebar styling */
+        aside {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            padding: 60px 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #EBEBEB;
+            background-color: var(--bg-color);
+            z-index: 100;
+        }
+
+        header .main-header {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        header .subhead {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #666;
+            margin: 0 0 30px 0;
+            text-transform: uppercase;
+        }
+
+        header .bio {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0 0 40px 0;
+            color: #333;
+            letter-spacing: -0.5px;
+        }
+
+        .contact-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
+            padding: 12px 24px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 40px;
+            align-self: flex-start;
+        }
+
+        .contact-btn:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        nav {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: color 0.3s ease, transform 0.2s ease;
+            color: #888;
+        }
+
+        nav li:hover {
+            color: var(--text-color);
+            transform: translateX(5px);
+        }
+
+        nav li.active {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* Main Gallery Area */
+        main {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            padding: 60px 40px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            align-items: start;
+        }
+
+        .gallery-column {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .gallery-column:nth-child(2) {
+            margin-top: 80px;
+        }
+
+        .gallery-column:nth-child(3) {
+            margin-top: 40px;
+        }
+
+        .photo-card {
+            width: 100%;
+            overflow: hidden;
+            background-color: #F0F0F0; 
+            opacity: 0;
+            cursor: zoom-in;
+            animation: fadeIn 0.8s forwards ease-in-out;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.03);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Smooth Modal Styles */
+        .modal {
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(253, 253, 253, 0.85); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            
+            /* Animation properties */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            padding: 60px;
+            border: 1px solid #111;
+            text-align: left;
+            min-width: 320px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            position: relative;
+            
+            /* Animation properties */
+            transform: translateY(20px) scale(0.98);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #111;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 30px 0;
+            text-transform: uppercase;
+        }
+
+        .contact-field {
+            margin-bottom: 25px;
+        }
+
+        .contact-label {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .contact-info {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        a.contact-info:hover {
+            border-bottom: 1px solid var(--text-color);
+        }
+
+        /* Lightbox / Image Viewer Styles */
+        .lightbox {
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-img-container {
+            position: relative;
+            max-width: 85%;
+            max-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.1);
+        }
+
+        .lightbox-controls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .lightbox-btn {
+            position: fixed;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 2rem;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            opacity: 0.5;
+            z-index: 2010;
+        }
+
+        .lightbox-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .lightbox-prev {
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .lightbox-next {
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .lightbox-close {
+            top: 40px;
+            right: 40px;
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .gallery-container { grid-template-columns: repeat(2, 1fr); }
+            .gallery-column:nth-child(3) { display: none; } 
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #EBEBEB;
+                padding: 40px 20px;
+            }
+            main {
+                margin-left: 0;
+                width: 100%;
+                padding: 40px 20px;
+            }
+            .gallery-container { grid-template-columns: 1fr; }
+            .gallery-column:nth-child(2) { margin-top: 0; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+            .lightbox-close { top: 15px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <header>
+            <h1 class="main-header">Ed's Gallery</h1>
+            <h2 class="subhead mono">Photography & Visual Artistry</h2>
+            <p class="bio">Hi, I'm Edward, and this is my portfolio containing everything related to my pursuit of photography. I generally do street, travel, and architecture photography as I enjoy capturing live and fleeting moments to look back on.<br><br>I'm also looking into getting into a little bit of product and event photography as well to expand my skillset and learn more about the field. For any inquiries, my contact details are listed below.</p>
+            <button id="open-modal-btn" class="contact-btn mono">Get in touch</button>
+        </header>
+
+        <nav>
+            <ul class="mono">
+                <li class="active" data-category="all">All / Random</li>
+                <li data-category="Portraits">Portraits</li>
+                <li data-category="Travel">Travel</li>
+                <li data-category="Street">Street</li>
+                <li data-category="Corporate/Events">Corporate / Events</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <div class="gallery-container" id="gallery">
+            <!-- Columns will be injected by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content" id="modal-box">
+            <button class="close-btn" id="close-modal-btn">&times;</button>
+            <h3 class="modal-title">Get in touch</h3>
+            
+            <div class="contact-field">
+                <span class="contact-label mono">Email Address</span>
+                <a href="mailto:edwardrebutoc@gmail.com" class="contact-info">edwardrebutoc@gmail.com</a>
+            </div>
+            
+            <div class="contact-field">
+                <span class="contact-label mono">Mobile Number</span>
+                <a href="tel:+639053221078" class="contact-info mono">+63 (905) 322-1078</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox / Image Viewer -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-btn lightbox-close" id="lb-close">&times;</button>
+        <button class="lightbox-btn lightbox-prev" id="lb-prev">&#8592;</button>
+        <div class="lightbox-img-container">
+            <img id="lb-img" src="" alt="Expanded View">
+        </div>
+        <button class="lightbox-btn lightbox-next" id="lb-next">&#8594;</button>
+    </div>
+
+    <script>
+    // Modal & UI Logic
+    const modal = document.getElementById("contact-modal");
+    const btn = document.getElementById("open-modal-btn");
+    const closeBtn = document.getElementById("close-modal-btn");
+
+    btn.addEventListener('click', () => modal.classList.add('active'));
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+
+    /**
+     * THE GITHUB AUTOMATION SCRIPT
+     * This automatically scans your GitHub repo and loads whatever images it finds.
+     */
+    const githubUser = "Svrachi"; // <-- CHANGE THIS
+    const githubRepo = "edsgallery";       // <-- CHANGE THIS
+    const branch = "main"; // Change to "master" if your default branch is master
+
+    const gallery = document.getElementById('gallery');
+    const navItems = document.querySelectorAll('nav li');
+    const numColumns = 3;
+
+    // Lightbox State Variables
+    let currentGalleryArray = [];
+    let currentImageIndex = 0;
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lb-img');
+    const lbPrev = document.getElementById('lb-prev');
+    const lbNext = document.getElementById('lb-next');
+    const lbClose = document.getElementById('lb-close');
+
+    // Shuffle helper
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function renderGallery(images) {
+        gallery.innerHTML = '';
+        currentGalleryArray = images; 
+        
+        const columns = [];
+        for (let i = 0; i < numColumns; i++) {
+            const col = document.createElement('div');
+            col.className = 'gallery-column';
+            col.dataset.speed = (i === 1) ? '0.1' : (i === 2 ? '0.05' : '0'); 
+            columns.push(col);
+            gallery.appendChild(col);
+        }
+
+        images.forEach((imgSrc, index) => {
+            const colIndex = index % numColumns;
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            card.style.animationDelay = `${(index % 6) * 0.1}s`;
+
+            const img = document.createElement('img');
+            img.src = imgSrc; // Now using dynamic paths
+            img.loading = "lazy";
+            
+            card.addEventListener('click', () => openLightbox(index));
+            card.appendChild(img);
+            columns[colIndex].appendChild(card);
+        });
+    }
+
+    // Lightbox Functions
+    function openLightbox(index) {
+        currentImageIndex = index;
+        lbImg.src = currentGalleryArray[currentImageIndex];
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+    }
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = ''; 
+    }
+    function showNextImage() {
+        currentImageIndex = (currentImageIndex + 1) % currentGalleryArray.length;
+        lbImg.src = currentGalleryArray[currentImageIndex];
+    }
+    function showPrevImage() {
+        currentImageIndex = (currentImageIndex - 1 + currentGalleryArray.length) % currentGalleryArray.length;
+        lbImg.src = currentGalleryArray[currentImageIndex];
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lbNext.addEventListener('click', (e) => { e.stopPropagation(); showNextImage(); });
+    lbPrev.addEventListener('click', (e) => { e.stopPropagation(); showPrevImage(); });
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target.classList.contains('lightbox-img-container')) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'ArrowRight') showNextImage();
+        if (e.key === 'ArrowLeft') showPrevImage();
+        if (e.key === 'Escape') closeLightbox();
+    });
+
+    // Parallax Effect
+    window.addEventListener('scroll', () => {
+        if (window.innerWidth <= 768) return; 
+        const scrollY = window.scrollY;
+        document.querySelectorAll('.gallery-column').forEach((col) => {
+            const speed = parseFloat(col.dataset.speed);
+            col.style.transform = `translateY(${speed > 0 ? scrollY * speed * -1 : scrollY * 0.02}px)`;
+        });
+    });
+
+    /**
+     * FETCH DATA AND INITIALIZE
+     */
+    async function initPortfolio() {
+        // Ping the GitHub API for the entire file tree
+        const treeUrl = `https://api.github.com/repos/${githubUser}/${githubRepo}/git/trees/${branch}?recursive=1`;
+        
+        let photos = {
+            "Portraits": [],
+            "Travel": [],
+            "Street": [],
+            "Corporate/Events": []
+        };
+        let allPhotos = [];
+
+        try {
+            const response = await fetch(treeUrl);
+            const data = await response.json();
+
+            // Sift through the repo looking for images in our designated folders
+            if (data.tree) {
+                data.tree.forEach(item => {
+                    if (item.type === "blob" && item.path.startsWith("images/")) {
+                        // Check if it's an image file
+                        if (item.path.match(/\.(jpg|jpeg|png|webp)$/i)) {
+                            // Assign to the correct category
+                            if (item.path.includes("Portraits/")) photos["Portraits"].push(item.path);
+                            else if (item.path.includes("Travel/")) photos["Travel"].push(item.path);
+                            else if (item.path.includes("Street/")) photos["Street"].push(item.path);
+                            else if (item.path.includes("Corporate/")) photos["Corporate/Events"].push(item.path);
+                        }
+                    }
+                });
+            }
+
+            // Combine all arrays for the default "Random" view
+            allPhotos = [...photos["Portraits"], ...photos["Travel"], ...photos["Street"], ...photos["Corporate/Events"]];
+
+            // Setup Navigation Listeners now that data is loaded
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const category = e.target.getAttribute('data-category');
+                    renderGallery(category === 'all' ? shuffle([...allPhotos]) : (photos[category] || []));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+
+            // Initial render
+            renderGallery(shuffle([...allPhotos]));
+
+        } catch (error) {
+            console.error("Failed to load images from GitHub:", error);
+            gallery.innerHTML = "<p>Error loading gallery. Please ensure the GitHub repository details are correct.</p>";
+        }
+    }
+
+    // Run the startup function
+    initPortfolio();
+</script>
+</body>
+</html>
