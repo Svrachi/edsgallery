@@ -9,25 +9,26 @@ jobs:
   compress:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # This gives the script permission to save the files back to your repo
+      contents: write 
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      # Add this missing step to install ImageMagick on the server
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
       - name: Compress Images with ImageMagick
         run: |
-          # Turn on advanced folder scanning
           shopt -s globstar nullglob
           
-          # Scan all subfolders inside /images for image files
           for img in images/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}; do
-            
-            # Check file size (512000 bytes = ~500KB)
             size=$(stat -c%s "$img")
             
             if [ "$size" -gt 512000 ]; then
               echo "Compressing $img..."
-              # mogrify edits the file in place. We cap dimensions to 1920px and size to 500KB.
               mogrify -resize "1920x1920>" -define jpeg:extent=500kb "$img"
             fi
           done
