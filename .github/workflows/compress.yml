@@ -2,30 +2,37 @@ name: Compress Images
 on:
   push:
     paths:
-      - 'images/**/**.jpg'
-      - 'images/**/**.jpeg'
-      - 'images/**/**.png'
+      - 'images/**'
   workflow_dispatch:
 
 jobs:
-  build:
-    name: calibreapp/image-actions
+  compress:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # This gives the script permission to save the files back to your repo
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
-        
-      - name: Compress Images
-        id: calibre
-        uses: calibreapp/image-actions@main
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          jpegQuality: "80"
-          pngQuality: "80"
-          ignorePaths: "node_modules/**,build/**"
+        uses: actions/checkout@v4
+
+      - name: Compress Images with ImageMagick
+        run: |
+          # Turn on advanced folder scanning
+          shopt -s globstar nullglob
+          
+          # Scan all subfolders inside /images for image files
+          for img in images/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}; do
+            
+            # Check file size (512000 bytes = ~500KB)
+            size=$(stat -c%s "$img")
+            
+            if [ "$size" -gt 512000 ]; then
+              echo "Compressing $img..."
+              # mogrify edits the file in place. We cap dimensions to 1920px and size to 500KB.
+              mogrify -resize "1920x1920>" -define jpeg:extent=500kb "$img"
+            fi
+          done
 
       - name: Commit Compressed Images
-        if: steps.calibre.outputs.markdown != ''
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: automatically compress images"
+          commit_message: "Auto-compress heavy images to 500KB"
